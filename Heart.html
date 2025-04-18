@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Realistic Pulsing Heart</title>
+  <style>
+    body {
+      background: #1a1a1a;
+      color: #fff;
+      text-align: center;
+      font-family: Arial, sans-serif;
+      padding: 50px;
+    }
+
+    h1 {
+      color: #ff4f81;
+      margin-bottom: 20px;
+    }
+
+    canvas {
+      background: #000;
+      border-radius: 10px;
+      box-shadow: 0 0 30px rgba(255, 77, 136, 0.5);
+      transition: transform 0.3s ease-in-out;
+    }
+
+    .pulse {
+      animation: pulse 1s infinite alternate ease-in-out;
+    }
+
+    @keyframes pulse {
+      from { transform: scale(1); }
+      to { transform: scale(1.05); }
+    }
+
+    button {
+      background: #ff4f81;
+      border: none;
+      color: white;
+      padding: 12px 24px;
+      font-size: 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      margin-top: 20px;
+    }
+
+    button:hover {
+      background: #ff3366;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Realistic Animated Heart ❤️</h1>
+  <canvas id="heartCanvas" width="500" height="500"></canvas>
+  <br>
+  <button onclick="startHeart()">Generate Heart</button>
+
+  <script>
+    const canvas = document.getElementById('heartCanvas');
+    const ctx = canvas.getContext('2d');
+    let t = 0;
+    const points = [];
+
+    function heartFunction(t) {
+      const x = 16 * Math.pow(Math.sin(t), 3);
+      const y = 13 * Math.cos(t) - 5 * Math.cos(2 * t)
+                - 2 * Math.cos(3 * t) - Math.cos(4 * t);
+      return { x, y };
+    }
+
+    function drawBackground() {
+      ctx.fillStyle = "#000";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+    }
+
+    function drawHeartShape() {
+      drawBackground();
+      if (points.length > 1) {
+        ctx.beginPath();
+        ctx.moveTo(points[0].x, points[0].y);
+        for (let i = 1; i < points.length; i++) {
+          ctx.lineTo(points[i].x, points[i].y);
+        }
+        ctx.closePath();
+
+        // gradient fill for 3D effect
+        const grad = ctx.createRadialGradient(
+          canvas.width / 2, canvas.height / 2, 10,
+          canvas.width / 2, canvas.height / 2, 100
+        );
+        grad.addColorStop(0, '#ff85a2');
+        grad.addColorStop(1, '#ff0055');
+
+        ctx.fillStyle = grad;
+        ctx.fill();
+
+        // glowing stroke
+        ctx.lineWidth = 2;
+        ctx.strokeStyle = '#ff4f81';
+        ctx.shadowColor = '#ff4f81';
+        ctx.shadowBlur = 15;
+        ctx.stroke();
+      }
+    }
+
+    function animateHeart() {
+      if (t >= Math.PI * 2) {
+        canvas.classList.add("pulse");
+        return;
+      }
+
+      const coord = heartFunction(t);
+      const x = canvas.width / 2 + coord.x * 10;
+      const y = canvas.height / 2 - coord.y * 10;
+      points.push({ x, y });
+
+      drawHeartShape();
+      t += 0.02;
+      requestAnimationFrame(animateHeart);
+    }
+
+    function startHeart() {
+      // reset
+      t = 0;
+      points.length = 0;
+      canvas.classList.remove("pulse");
+      drawBackground();
+      animateHeart();
+    }
+  </script>
+
+</body>
+</html>
